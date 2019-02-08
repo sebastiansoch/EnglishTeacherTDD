@@ -36,7 +36,7 @@ public class PrepareWordToTranslateTest {
     @Test
     public void ShouldReturnWordsToTranslate() {
 
-        List<Word> transaledWords = prepareListOfWorlds();
+        List<Word> transaledWords = prepareListOfFiveWorlds();
 
         WordService wordService = new WordService(transaledWords);
         Word result = wordService.getNextWordToTranslate();
@@ -47,60 +47,106 @@ public class PrepareWordToTranslateTest {
     }
 
     @Test
-    public void ShouldReturnWordsToTranslate2() {
-
-        List<Word> transaledWords = prepareListOfWorlds2();
-
-        WordService wordService = new WordService(transaledWords);
-        Word result = wordService.getNextWordToTranslate();
-        assertEquals(transaledWords.get(0), result);
-
-        result = wordService.getNextWordToTranslate();
-        assertEquals(transaledWords.get(1), result);
-    }
-
-    @Test
-    public void ShouldCheckTranslationCorrectness() {
-        List<Word> words = prepareListOfWorlds();
+    public void ShouldCheckTranslationCorrectnessTranslationTrue() {
+        List<Word> words = prepareListOfFiveWorlds();
         WordService wordService = new WordService(words);
-        String translation = wordService.getNextWordToTranslate().getTranslation();
-        boolean result = wordService.checkTranslationCorrectness(translation);
+        Word askedWord = wordService.getNextWordToTranslate();
+        Word answerWord = new Word(askedWord.getTranslatedWord(), words.get(0).getTranslation());
+
+        boolean result = wordService.checkTranslationCorrectness(answerWord);
         assertTrue(result);
     }
 
     @Test
-    public void ShouldReturnListOfWordsMeetsTheCriteria() {
+    public void ShouldCheckTranslationCorrectnessTranslationFalse() {
+        List<Word> words = prepareListOfFiveWorlds();
+        WordService wordService = new WordService(words);
+        Word askedWord = wordService.getNextWordToTranslate();
+        String translation = "błędne tłumaczenie";
+        Word answerWord = new Word(askedWord.getTranslatedWord(), translation);
+
+        boolean result = wordService.checkTranslationCorrectness(answerWord);
+        assertFalse(result);
+    }
+
+    @Test
+    public void ShouldCheckTranslationCorrectnessTranslationNull() {
+        List<Word> words = prepareListOfFiveWorlds();
+        WordService wordService = new WordService(words);
+        Word askedWord = wordService.getNextWordToTranslate();
+        String translation = null;
+        Word answerWord = new Word(askedWord.getTranslatedWord(), translation);
+
+        boolean result = wordService.checkTranslationCorrectness(answerWord);
+        assertFalse(result);
+    }
+
+    @Test
+    public void ShouldReturnListOfWordsMeetsQuantityCriteria() {
         int nbOfWordPerLesson = 2;
-        when(repo.init()).thenReturn(prepareMeetsCriteriaRepo());
+        when(repo.init()).thenReturn(prepareListOfTwoWorlds());
         LessonCriteria lessonCriteria = new LessonCriteria(nbOfWordPerLesson);
         Lesson lesson = new Lesson(lessonCriteria, repo);
-        List<Word> actuals = lesson.getLesson();
+        List<Word> actual = lesson.getLesson();
 
-        assertEquals(prepareListOfWorlds(), actuals);
+        assertEquals(prepareListOfTwoWorlds(), actual);
     }
 
-    @Ignore
     @Test
     public void ShouldReturnListOfWordsDoesntMeetTheQuantityCriteria() {
-        int nbOfWordPerLesson = 5;
+        int nbOfWordPerLesson = 15;
+        when(repo.init()).thenReturn(prepareListOfFiveWorlds());
         LessonCriteria lessonCriteria = new LessonCriteria(nbOfWordPerLesson);
-        Lesson lesson = new Lesson(lessonCriteria, null);
-        List<Word> actuals = lesson.getLesson();
+        Lesson lesson = new Lesson(lessonCriteria, repo);
+        List<Word> actual = lesson.getLesson();
+        List<Word> expected = prepareListOfFiveWorlds();
 
-        assertNotEquals(prepareListOfFiveWorlds(), actuals);
+        assertNotEquals(nbOfWordPerLesson, actual.size());
+        assertEquals(expected.size(), actual.size());
+        assertEquals(expected, actual);
     }
 
-    private List<Word> prepareListOfWorlds() {
+    @Test
+    public void ShouldCheckThatNextWordExists() {
+        List<Word> words = new ArrayList<>();
+        WordService wordService = new WordService(words);
+        boolean result = wordService.isNextWord();
+        assertFalse(result);
+    }
+
+    @Test
+    public void ShouldCheckThatNextWordDoesntExist() {
+        List<Word> words = new ArrayList<>();
+        words.add(new Word("house", "dom"));
+        WordService wordService = new WordService(words);
+        boolean result = wordService.isNextWord();
+        assertTrue(result);
+    }
+
+    @Test
+    public void ShouldReturnCorrectAnswerIfAnswerIsWrong() {
+        List<Word> words = prepareListOfFiveWorlds();
+        WordService wordService = new WordService(words);
+        Word askedWord = wordService.getNextWordToTranslate();
+        String correctAnswer = wordService.giveCorrectAnswer(askedWord);
+
+        assertEquals(correctAnswer, askedWord.getTranslation());
+    }
+
+    @Test
+    public void ShouldReturnEnglishToPolishTranslation() {
+        when(repo.init()).thenReturn(prepareListOfTwoWorlds());
+        LessonCriteria lessonCriteria = new LessonCriteria(TranslationMode.PL_EN);
+        Lesson lesson = new Lesson(lessonCriteria, repo);
+        List<Word> actual = lesson.getLesson();
+        List<Word> expected = prepareListOfTwoWorlds();
+        assertEquals(expected, actual);
+    }
+
+    private List<Word> prepareListOfTwoWorlds() {
         List<Word> words = new ArrayList<>();
         words.add(new Word("house", "dom"));
         words.add(new Word("wheel", "koło"));
-        return words;
-    }
-
-    private List<Word> prepareListOfWorlds2() {
-        List<Word> words = new ArrayList<>();
-        words.add(new Word("rat", "szczur"));
-        words.add(new Word("dog", "pies"));
         return words;
     }
 
@@ -112,15 +158,6 @@ public class PrepareWordToTranslateTest {
         words.add(new Word("dog", "pies"));
         words.add(new Word("quantity", "ilość"));
         return words;
-
     }
 
-    private List<Word> prepareMeetsCriteriaRepo() {
-        List<Word> words = new ArrayList<>();
-        words.add(new Word("house", "dom"));
-        words.add(new Word("wheel", "koło"));
-        words.add(new Word("rat", "szczur"));
-        words.add(new Word("dog", "pies"));
-        return words;
-    }
 }

@@ -5,14 +5,17 @@
  */
 package ss.englishteacher.lessonpreparation;
 
-import java.util.List;
-
 /**
  *
  * @author ssoch
  */
-public interface WordRepo {
-
-    public List<Word> getWordsForLesson(int nbOfWordPerLesson);
+enum TranslationMode {
+    PL_EN("polish to english"),
+    EN_PL("english to polish");
     
+    private final String name;
+
+    private TranslationMode(String name) {
+        this.name = name;
+    }
 }

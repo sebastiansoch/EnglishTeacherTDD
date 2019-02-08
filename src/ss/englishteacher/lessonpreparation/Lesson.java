@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author ssoch
  */
-class Lesson {
+public class Lesson {
 
     private final LessonCriteria lessonCriteria;
     private final WordRepo wordRepo;
@@ -23,7 +23,7 @@ class Lesson {
     }
 
     
-    List<Word> getLesson() {
+    public List<Word> getLesson() {
         return wordRepo.getWordsForLesson(lessonCriteria.getNbOfWordPerLesson());
     }
     

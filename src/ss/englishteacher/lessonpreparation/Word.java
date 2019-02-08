@@ -11,12 +11,12 @@ import java.util.Objects;
  *
  * @author ssoch
  */
-class Word {
+public class Word {
 
     private String translatedWord;
     private String translation;
     
-    Word(String translatedWord, String translation) {
+    public Word(String translatedWord, String translation) {
         this.translatedWord = translatedWord;
         this.translation = translation;
     }

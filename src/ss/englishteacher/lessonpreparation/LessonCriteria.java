@@ -9,12 +9,16 @@ package ss.englishteacher.lessonpreparation;
  *
  * @author ssoch
  */
-class LessonCriteria {
+public class LessonCriteria {
 
     private int nbOfWordPerLesson;
 
-    LessonCriteria(int nbOfWordPerLesson) {
+    public LessonCriteria(int nbOfWordPerLesson) {
         this.nbOfWordPerLesson = nbOfWordPerLesson;
+    }
+
+    LessonCriteria(TranslationMode translationMode) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public int getNbOfWordPerLesson() {

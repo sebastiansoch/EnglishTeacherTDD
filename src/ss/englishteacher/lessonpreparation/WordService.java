@@ -11,21 +11,34 @@ import java.util.List;
  *
  * @author ssoch
  */
-class WordService {
+public class WordService {
 
     private int wordNb = -1;
     private List<Word> wordsToTranslate;
 
-    WordService(List<Word> words) {
+    public WordService(List<Word> words) {
         this.wordsToTranslate = words;
     }
 
-    Word getNextWordToTranslate() {
+    public boolean isNextWord() {
+        if (wordNb + 1 >= wordsToTranslate.size()) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    public Word getNextWordToTranslate() {
         return wordsToTranslate.get(++wordNb);
     }
 
-    boolean checkTranslationCorrectness(String translation) {
-        return wordsToTranslate.get(wordNb).getTranslation().equalsIgnoreCase(translation);
+    public boolean checkTranslationCorrectness(Word answerWord) {
+        return wordsToTranslate.get(wordNb).equals(answerWord);
     }
+
+    public String giveCorrectAnswer(Word askedWord) {
+        return askedWord.getTranslation();
+    }
+
     
 }
